@@ -1,0 +1,125 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
+package com.servlet;
+
+import com.DAO.MembreDAO;
+import com.model.Membre;
+import java.io.IOException;
+import java.io.PrintWriter;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author DELL
+ */
+@WebServlet(name = "MembreServlet", urlPatterns = {"/page-jsp/Membre"})
+public class MembreServlet extends HttpServlet {
+
+        private MembreDAO membreDAO = new MembreDAO();
+
+//    @Override
+//    public void init() throws ServletException {
+//        super.init();
+//        try {
+//            // Récupération de la connexion stockée dans le contexte (à configurer dans un Listener)
+//            java.sql.Connection conn = (java.sql.Connection) getServletContext().getAttribute("connexion");
+//            membreDAO = new MembreDAO(conn);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            
+        }
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+             List<Membre> membres = membreDAO.listerMembres();
+             request.setAttribute("membres", membres);
+             request.getRequestDispatcher("Membre.jsp").forward(request, response);
+         } catch (Exception e) {
+            e.printStackTrace();
+         }
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String nom = request.getParameter("nom");
+        String prenom = request.getParameter("prenom");
+//        String email = request.getParameter("email");
+        String telephone = request.getParameter("telephone");
+//        Double amende = 0.00;
+
+        Membre membre = new Membre(nom, prenom,telephone);
+        try {
+            membreDAO.ajouterMembre(membre);
+            System.out.println("Membre ajouté avec succès !");
+        } catch (Exception e) {
+            e.printStackTrace();
+           response.getWriter().println("Erreur lors de l'ajout du membre : " + e.getMessage());
+        }
+        try {
+            request.setAttribute("membres", membreDAO.listerMembres());
+        } catch (SQLException ex) {
+            Logger.getLogger(MembreServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        request.getRequestDispatcher("Membre.jsp").forward(request, response);
+
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}

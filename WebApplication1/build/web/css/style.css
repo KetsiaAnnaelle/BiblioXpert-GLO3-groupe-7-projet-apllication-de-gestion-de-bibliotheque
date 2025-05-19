@@ -1,0 +1,72 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f4f7fc;
+}
+
+.sidebar {
+  height: 100vh;
+  width: 230px;
+  position: fixed;
+  background-color: #2d3e50;
+  padding-top: 30px;
+  color: white;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+
+.sidebar a {
+  display: block;
+  padding: 12px 25px;
+  color: #d1d1d1;
+  text-decoration: none;
+  transition: background 0.3s ease;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background-color: #1abc9c;
+  color: white;
+  font-weight: bold;
+  border-left: 4px solid #ffffff;
+}
+
+.main-content {
+  margin-left: 240px;
+  padding: 30px;
+}
+
+.table th {
+  background-color: #1abc9c;
+  color: white;
+  text-align: center;
+}
+
+.table td, .table th {
+  vertical-align: middle;
+  text-align: center;
+}
+
+.btn {
+  border-radius: 25px;
+  padding: 6px 15px;
+  font-size: 14px;
+}
+
+.btn-warning {
+  background-color: #f39c12;
+  border: none;
+}
+
+.btn-danger {
+  background-color: #e74c3c;
+  border: none;
+}
+
+.btn-success {
+  background-color: #2ecc71;
+  border: none;
+}
+
+.modal-header {
+  background-color: #1abc9c;
+  color: white;
+}

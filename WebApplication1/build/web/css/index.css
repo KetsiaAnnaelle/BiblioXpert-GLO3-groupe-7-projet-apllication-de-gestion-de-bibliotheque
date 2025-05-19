@@ -1,0 +1,33 @@
+.carousel-caption {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    padding: 20px;
+}
+.card {
+  transition: transform 0.3s ease;
+}
+.card:hover {
+  transform: scale(1.03);
+}
+
+.carousel-custom-height .carousel-item {
+    height: 400px; /* ajuste ici selon le rendu désiré */
+}
+
+.carousel-custom-height .carousel-item img {
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel-caption {
+  bottom: 20px; /* repositionne légèrement les textes si nécessaire */
+}
+
+footer {
+  background-color: #f8f9fa;
+  padding: 20px 0;
+  margin-top: 50px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+

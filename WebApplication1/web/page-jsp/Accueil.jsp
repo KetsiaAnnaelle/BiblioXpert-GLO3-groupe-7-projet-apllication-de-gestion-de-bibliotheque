@@ -139,9 +139,9 @@
           <div class="col-md-4">
           <div class="card shadow-sm h-100">
             <div class="card-body">
-              <h5 class="card-title text-primary fw-bold">Historique</h5>
+              <h5 class="card-title text-primary fw-bold">Gestion des retours</h5>
               <p class="card-text">Suivez les prets, les retours et les Echeances sans effort.</p>
-              <a href="/WebApplication1/page-jsp/Emprunt.jsp" class="btn btn-outline-primary">Visiter</a>
+              <a href="/WebApplication1/page-jsp/RetourEmprunt.jsp" class="btn btn-outline-primary">Visiter</a>
             </div>
           </div>
         </div>

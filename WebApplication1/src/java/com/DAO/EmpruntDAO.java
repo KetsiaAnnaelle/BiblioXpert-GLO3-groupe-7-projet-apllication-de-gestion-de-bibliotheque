@@ -8,6 +8,7 @@ import com.model.Emprunt;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -22,7 +23,7 @@ public class EmpruntDAO {
 
     public void emprunterLivre(Emprunt emprunt) throws SQLException, ClassNotFoundException {
         String insert = "INSERT INTO emprunts (id_livre, id_membre, date_emprunt) VALUES (?, ?, ?)";
-        String update = "UPDATE livres SET disponible = false WHERE id = ?";
+        String update = "UPDATE livre SET disponible = false WHERE id = ?";
 
         try (Connection conn = Connexion.getConnection();
              PreparedStatement stmt1 = conn.prepareStatement(insert);
@@ -38,29 +39,6 @@ public class EmpruntDAO {
         }
     }
 
-//    public void retournerLivre(int idEmprunt, LocalDate dateRetour) throws SQLException, ClassNotFoundException {
-//        String updateRetour = "UPDATE emprunts SET date_retour = ? WHERE id = ?";
-//        String getLivre = "SELECT id_livre FROM emprunts WHERE id = ?";
-//        String updateLivre = "UPDATE livres SET disponible = true WHERE id = ?";
-//
-//        try (Connection conn = Connexion.getConnection();
-//             PreparedStatement stmt1 = conn.prepareStatement(updateRetour);
-//             PreparedStatement stmt2 = conn.prepareStatement(getLivre);
-//             PreparedStatement stmt3 = conn.prepareStatement(updateLivre)) {
-//
-//            stmt1.setDate(1, dateRetour != null ? Date.valueOf(dateRetour) : null);
-//            stmt1.setInt(2, idEmprunt);
-//            stmt1.executeUpdate();
-//
-//            stmt2.setInt(1, idEmprunt);
-//            ResultSet rs = stmt2.executeQuery();
-//            if (rs.next()) {
-//                int idLivre = rs.getInt("id_livre");
-//                stmt3.setInt(1, idLivre);
-//                stmt3.executeUpdate();
-//            }
-//        }
-//    }
 
     public void enregistrerEmprunt(Emprunt emprunt) throws SQLException {
         String insert = "INSERT INTO emprunts (id_membre, id_livre, date_retour_prevue) VALUES (?, ?, ?)";
@@ -97,9 +75,9 @@ public class EmpruntDAO {
     String sql = "SELECT * FROM emprunts";
 
     try (
-            Connection conn = Connexion.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery()) {
+        Connection conn = Connexion.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        ResultSet rs = stmt.executeQuery()) {
 
         while (rs.next()) {
             Emprunt e = new Emprunt();
@@ -109,11 +87,24 @@ public class EmpruntDAO {
 
             Date sqlDateEmp = rs.getDate("date_emprunt");
             Date sqlDateRetPrevue = rs.getDate("date_retour_prevue");
-            Date sqlDateRetour = rs.getDate("date_retour"); // ✅ récupération de la date réelle de retour
+            Date sqlDateRetour = rs.getDate("date_retour");
 
-            e.setDateEmprunt(sqlDateEmp != null ? sqlDateEmp.toLocalDate() : null);
-            e.setDateRetourPrevue(sqlDateRetPrevue != null ? sqlDateRetPrevue.toLocalDate() : null);
-            e.setDateRetour(sqlDateRetour != null ? sqlDateRetour.toLocalDate() : null); // ✅ affectation
+            LocalDate dateEmprunt = sqlDateEmp != null ? sqlDateEmp.toLocalDate() : null;
+            LocalDate dateRetourPrevue = sqlDateRetPrevue != null ? sqlDateRetPrevue.toLocalDate() : null;
+            LocalDate dateRetour = sqlDateRetour != null ? sqlDateRetour.toLocalDate() : null;
+
+            e.setDateEmprunt(dateEmprunt);
+            e.setDateRetourPrevue(dateRetourPrevue);
+            e.setDateRetour(dateRetour);
+
+            // ✅ Calcul de l'amende (sans écrire en base)
+            if (dateRetourPrevue != null && dateRetour != null && dateRetour.isAfter(dateRetourPrevue)) {
+                long joursDeRetard = ChronoUnit.DAYS.between(dateRetourPrevue, dateRetour);
+                int amende = (int) (joursDeRetard * 100); // 100 FCFA/jour
+                e.setAmende(amende);
+            } else {
+                e.setAmende(0);
+            }
 
             emprunts.add(e);
         }
@@ -124,42 +115,85 @@ public class EmpruntDAO {
     return emprunts;
 }
 
- 
+
     public void retournerLivre(int idEmprunt, LocalDate dateRetour) throws SQLException, ClassNotFoundException {
-        String updateRetour = "UPDATE emprunts SET date_retour = ?, amende = ? WHERE id = ?";
-        String getLivreEtPrevue = "SELECT id_livre, date_retour_prevue FROM emprunts WHERE id = ?";
-        String updateLivre = "UPDATE livres SET disponible = true WHERE id = ?";
+        String sqlUpdateEmprunt = "UPDATE emprunts SET date_retour = ?, amende = ? WHERE id = ?";
+        String sqlGetEmpruntInfos = "SELECT id_livre, date_retour_prevue FROM emprunts WHERE id = ?";
+        String sqlUpdateLivre = "UPDATE livre SET disponible = true WHERE id = ?";
 
-        try (Connection conn = Connexion.getConnection();
-             PreparedStatement stmt1 = conn.prepareStatement(updateRetour);
-             PreparedStatement stmt2 = conn.prepareStatement(getLivreEtPrevue);
-             PreparedStatement stmt3 = conn.prepareStatement(updateLivre)) {
+        try (
+            Connection conn = Connexion.getConnection();
+            PreparedStatement stmtInfos = conn.prepareStatement(sqlGetEmpruntInfos);
+            PreparedStatement stmtUpdateEmprunt = conn.prepareStatement(sqlUpdateEmprunt);
+            PreparedStatement stmtUpdateLivre = conn.prepareStatement(sqlUpdateLivre)
+        ) {
+            // 1. Récupérer les infos de l’emprunt
+            stmtInfos.setInt(1, idEmprunt);
+            ResultSet rs = stmtInfos.executeQuery();
 
-            stmt2.setInt(1, idEmprunt);
-            ResultSet rs = stmt2.executeQuery();
-
-            if (rs.next()) {
-                int idLivre = rs.getInt("id_livre");
-                LocalDate datePrevue = rs.getDate("date_retour_prevue") != null
-                        ? rs.getDate("date_retour_prevue").toLocalDate()
-                        : null;
-
-                int amende = 0;
-                if (datePrevue != null && dateRetour.isAfter(datePrevue)) {
-                    amende = (int) (dateRetour.toEpochDay() - datePrevue.toEpochDay()) * 100; // par exemple 100 unités par jour de retard
-                }
-
-                stmt1.setDate(1, Date.valueOf(dateRetour));
-                stmt1.setInt(2, amende);
-                stmt1.setInt(3, idEmprunt);
-                stmt1.executeUpdate();
-
-                stmt3.setInt(1, idLivre);
-                stmt3.executeUpdate();
+            if (!rs.next()) {
+                throw new SQLException("Aucun emprunt trouvé avec l'ID " + idEmprunt);
             }
+
+            int idLivre = rs.getInt("id_livre");
+            Date dateRetourPrevueSql = rs.getDate("date_retour_prevue");
+            LocalDate dateRetourPrevue = dateRetourPrevueSql != null ? dateRetourPrevueSql.toLocalDate() : null;
+
+            // 2. Calcul de l’amende
+            int amende = 0;
+            if (dateRetourPrevue != null && dateRetour.isAfter(dateRetourPrevue)) {
+                long joursRetard = ChronoUnit.DAYS.between(dateRetourPrevue, dateRetour);
+                amende = (int) joursRetard * 100; // 100 FCFA par jour de retard
+            }
+
+            // 3. Mise à jour de l’emprunt
+            stmtUpdateEmprunt.setDate(1, Date.valueOf(dateRetour));
+            stmtUpdateEmprunt.setInt(2, amende);
+            stmtUpdateEmprunt.setInt(3, idEmprunt);
+            stmtUpdateEmprunt.executeUpdate();
+
+            // 4. Marquer le livre comme disponible
+            stmtUpdateLivre.setInt(1, idLivre);
+            stmtUpdateLivre.executeUpdate();
+
+        } catch (SQLException | ClassNotFoundException e) {
+            throw e; // On laisse le contrôle à l’appelant
+        }
+    }
+    
+   public List<Emprunt> listerEmpruntsRetournes() throws SQLException, ClassNotFoundException {
+    List<Emprunt> emprunts = new ArrayList<>();
+    String sql = "SELECT * FROM emprunts WHERE date_retour IS NOT NULL";
+
+    try (Connection conn = Connexion.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql);
+         ResultSet rs = stmt.executeQuery()) {
+
+        while (rs.next()) {
+            Emprunt emprunt = new Emprunt();
+            emprunt.setId(rs.getInt("id"));
+            emprunt.setIdLivre(rs.getInt("id_livre"));
+            emprunt.setIdMembre(rs.getInt("id_membre"));
+            emprunt.setDateEmprunt(rs.getDate("date_emprunt").toLocalDate());
+            emprunt.setDateRetour(rs.getDate("date_retour").toLocalDate());
+            emprunt.setDateRetourPrevue(rs.getDate("date_retour_prevue").toLocalDate());
+            emprunt.setAmende(rs.getInt("amende"));
+
+            // Si tu veux aussi récupérer les infos du livre et de l’étudiant,
+            // tu peux faire une jointure ici ou récupérer via leurs DAOs respectifs.
+
+            emprunts.add(emprunt);
         }
     }
 
+    return emprunts;
+}
+
+    
+    
+    
+    
+    
     public Emprunt trouverParId(int id) throws SQLException, ClassNotFoundException {
         Emprunt emprunt = null;
         String sql = "SELECT * FROM emprunts WHERE id = ?";
@@ -266,38 +300,38 @@ public class EmpruntDAO {
        return null;
    }
 
-
     
      public boolean enregistrerRetour(int idEmprunt, LocalDate dateRetour) {
-    String sql = "UPDATE emprunts SET dateRetour = ?, amende = ? WHERE id = ?";
+        String sql = "UPDATE emprunts SET dateRetour = ?, amende = ? WHERE id = ?";
 
-    try (Connection conn = Connexion.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = Connexion.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql))
+        {
 
-        // Calculer l'amende si nécessaire
-        Emprunt emprunt = getEmpruntById(idEmprunt); // à implémenter
-        long daysLate = 0;
-        double amende = 0;
+            // Calculer l'amende si nécessaire
+            Emprunt emprunt = getEmpruntById(idEmprunt); // à implémenter
+            long daysLate = 0;
+            double amende = 0;
 
-        if (emprunt.getDateRetourPrevue() != null) {
-            daysLate = java.time.temporal.ChronoUnit.DAYS.between(
-                emprunt.getDateRetourPrevue(), dateRetour);
-            if (daysLate > 0) {
-                amende = daysLate * 100; // par exemple, 100 FCFA par jour
+            if (emprunt.getDateRetourPrevue() != null) {
+                daysLate = java.time.temporal.ChronoUnit.DAYS.between(
+                    emprunt.getDateRetourPrevue(), dateRetour);
+                if (daysLate > 0) {
+                    amende = daysLate * 100; // par exemple, 100 FCFA par jour
+                }
             }
+
+            stmt.setDate(1, java.sql.Date.valueOf(dateRetour));
+            stmt.setDouble(2, amende);
+            stmt.setInt(3, idEmprunt);
+
+            return stmt.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
-
-        stmt.setDate(1, java.sql.Date.valueOf(dateRetour));
-        stmt.setDouble(2, amende);
-        stmt.setInt(3, idEmprunt);
-
-        return stmt.executeUpdate() > 0;
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        return false;
     }
-}
 
     public List<Emprunt> historiqueParLivre(int idLivre) throws SQLException, ClassNotFoundException {
         List<Emprunt> historique = new ArrayList<>();

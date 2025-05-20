@@ -97,13 +97,15 @@ public class EmpruntServlet extends HttpServlet {
         } catch (SQLException ex) {
             Logger.getLogger(EmpruntServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
-        try {
-            empruntDAO.enregistrerEmprunt(emprunt);
-        } catch (Exception e) {
+//        try {
+//            empruntDAO.enregistrerEmprunt(emprunt);
+//        } 
+        catch (Exception e) {
             e.printStackTrace();
         }
         request.setAttribute("message", "Emprunt enregistré avec succès !");
         response.sendRedirect("Emprunt.jsp");
+        
     }
 
     /**

@@ -102,8 +102,6 @@ public class LivreServlet extends HttpServlet {
         boolean disponible = true;
         
         Livre book = new Livre(titre,auteur,isbn,annee,disponible);
-        
-        
          
         try{
             try {
@@ -112,13 +110,13 @@ public class LivreServlet extends HttpServlet {
                 Logger.getLogger(LivreServlet.class.getName()).log(Level.SEVERE, null, ex);
             }
             // récupère la liste mise à jour
-        List<Livre> livres = BookDAO.listerLivres();
+            List<Livre> livres = BookDAO.listerLivres();
 
-        // envoie la liste à la JSP
-        request.setAttribute("listeLivres", livres);
+            // envoie la liste à la JSP
+            request.setAttribute("listeLivres", livres);
 
-        // transfert vers la page JSP qui va afficher les livres
-        request.getRequestDispatcher("/page-jsp/GestionLivre.jsp").forward(request, response);
+            // transfert vers la page JSP qui va afficher les livres
+            request.getRequestDispatcher("/page-jsp/GestionLivre.jsp").forward(request, response);
          
         }catch (ClassNotFoundException e){
             e.printStackTrace();

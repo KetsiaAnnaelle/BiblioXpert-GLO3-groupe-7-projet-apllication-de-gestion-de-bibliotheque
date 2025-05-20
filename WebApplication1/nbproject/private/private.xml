@@ -3,14 +3,27 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/web/page-jsp/Accueil.html</file>
             <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/web/css/index.css</file>
-            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/web/page-jsp/GestionLivre.html</file>
             <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/src/java/com/servlet/LivreServlet.java</file>
             <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/src/java/com/DAO/LivreDAO.java</file>
-            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/src/java/com/model/Livre.java</file>
-            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/web/page-jsp/GestionLivre.jsp</file>
             <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/src/java/com/servlet/supprimerLivreServlet.java</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/src/java/com/servlet/EmpruntServlet.java</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/src/java/com/model/Emprunt.java</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/src/java/com/DAO/EmpruntDAO.java</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/web/page-jsp/Emprunt.jsp</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/web/page-jsp/RetourEmprunt.jsp</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/web/page-jsp/Accueil.jsp</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/web/page-jsp/GestionLivre.jsp</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/web/css/style.css</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/src/java/com/model/Livre.java</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/src/java/com/model/User.java</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/src/java/com/model/Membre.java</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/src/java/com/DAO/MembreDAO.java</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/web/page-jsp/login.jsp</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/src/java/com/servlet/StatistiquesRetourServlet.java</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/src/java/com/servlet/UpdateLivre.java</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/web/page-jsp/Membre.jsp</file>
+            <file>file:/C:/Users/DELL/Documents/projet%20java%20ENSPD/WebApplication1/src/java/com/servlet/RetourEmpruntServlet.java</file>
         </group>
     </open-files>
 </project-private>

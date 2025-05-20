@@ -12,6 +12,7 @@
     List<Livre> livres = new LivreDAO().listerLivres();
     List<Membre> membres = new MembreDAO().listerMembres();
     request.setAttribute("emprunts", emprunts);
+    java.time.LocalDate aujourdHui = java.time.LocalDate.now();
 %>
 
 <!DOCTYPE html>
@@ -29,7 +30,7 @@
     <a href="GestionLivre.jsp">📖 Gestion des livres</a>
     <a href="Membre.jsp">👥 Gestion des Membres</a>
     <a href="Emprunt.jsp" class="active">📦 Gestion des emprunts</a>
-    <a href="#">🔁 Gestion des retours</a>
+    <a href="RetourEmprunt.jsp">🔁 Gestion des retours</a>
 <!--    <a href="#">📊 Statistiques</a>
     <a href="#">⚙️ Paramètres</a>-->
 </div>
@@ -86,6 +87,7 @@ public Livre trouverLivreParId(List<Livre> livres, int id) {
                 <th>Amende</th>
                 <th>Retard</th>
                 <th>Actions</th>
+                
             </tr>
         </thead>
         <tbody>
@@ -104,22 +106,39 @@ public Livre trouverLivreParId(List<Livre> livres, int id) {
                 <td><%= emprunt.getDateRetour() != null ? emprunt.getDateRetour() : "Non rendu" %></td>
                 <td><%= (emprunt.getAmende() > 0) ? emprunt.getAmende() + " FCFA" : "-" %></td>
                 <td>
-                    <% if (emprunt.getDateRetour() != null && emprunt.getDateRetourPrevue() != null && emprunt.getDateRetour().isAfter(emprunt.getDateRetourPrevue())) { %>
-                        <span class="badge badge-danger">⏰ En retard</span>
+                    
+                    <%
+                        java.time.LocalDate datePrevue = emprunt.getDateRetourPrevue();
+                        java.time.LocalDate dateRetour = emprunt.getDateRetour();
+                    %>
+                    
+                    <% if (dateRetour != null) { %>
+                        <% if (dateRetour.isAfter(datePrevue)) { %>
+                            <span class="badge badge-danger text-warning">⏰ En retard</span>
+                        <% } else { %>
+                            <span class="badge badge-success text-warning">✔ À temps</span>
+                        <% } %>
                     <% } else { %>
-                        <span class="badge badge-success text-warning">✔ À temps</span>
+                        <% if (aujourdHui.isAfter(datePrevue)) { %>
+                            <span class="badge badge-danger text-danger">⏰ En retard (non retourné)</span>
+                        <% } else { %>
+                            <span class="badge badge-success text-primary">✔ À temps</span>
+                        <% } %>
                     <% } %>
+                    
+                    
+                    
                 </td>
-                <td>
+                <td class="d-flex gap-3 w-100">
                     <% if (emprunt.getDateRetour() == null) { %>
                         <!--<a href="/page-jsp/RetourEmpruntServlet?id=<%= emprunt.getId() %>" class="btn btn-sm btn-success">📦 Retour</a>-->
-                        <button class="btn btn-sm btn-success retour-btn" data-id="<%= emprunt.getId() %>">📦 Retour</button>
+                        <button class="btn btn-sm btn-success retour-btn" onclick="retourner(<%= emprunt.getId() %>)">📦 Retour</button>
 
                     <% } else { %>
                         <span class="btn btn-sm btn-danger">✔ Remis</span>
                     <% } %>
                     <!--<a href="#" class="btn btn-sm btn-warning">✏️</a>-->
-                    <a href="#" onclick="supprimerEmprunt(<%= emprunt.getId() %>)"  class="btn btn-sm btn-danger">🗑️</a>
+                    <a href="#" onclick="supprimerEmprunt(<%= emprunt.getId() %>)"  class="btn btn-md fw-bold text-danger">🗑 Delete️</a>
                 </td>
             </tr>
         <% } %>
@@ -195,73 +214,76 @@ document.getElementById("searchInput").addEventListener("keyup", function () {
 </script>
 
 <script>
-    document.querySelectorAll(".retour-btn").forEach(btn => {
-        btn.addEventListener("click", function () {
-            const id = this.getAttribute("data-id");
-            const button = this;
+    function retourner(id) {
+        console.log(id); // Vérifie que l'id s'affiche bien
 
-            fetch(`<%= request.getContextPath() %>/RetourEmpruntServlet?id=${id}` , {
-                method: "GET"
-            })
-            .then(response => {
-                if (!response.ok) throw new Error("Erreur lors du retour");
-                return response.text();
-            })
-            .then(() => {
-                // Changer le bouton en "✔ Remis"
-                button.outerHTML = '<span class="btn btn-sm btn-danger">✔ Remis</span>';
-
-                // Afficher l'alerte
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Succès !',
-                    text: 'Le livre a été retourné avec succès.',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            })
-            .catch(error => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erreur',
-                    text: error.message
-                });
+        fetch('<%= request.getContextPath() %>/RetourEmpruntServlet?id=' + id, {
+        method: 'POST' 
+      })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error("Erreur lors du retour.");
+            }
+            return response.text();
+          })
+          .then(data => {
+            // Alerte de succès avec SweetAlert
+            Swal.fire({
+              icon: 'success',
+              title: 'Succès !',
+              text: 'Le livre a été retourné avec succès.',
+              timer: 2000,
+              showConfirmButton: false
+            }).then(() => {
+              location.reload(); // Recharge la page après l'alerte
+            });
+          })
+          .catch(error => {
+            // Alerte d'erreur avec SweetAlert
+            Swal.fire({
+              icon: 'error',
+              title: 'Erreur',
+              text: error.message
             });
         });
-    });
-    
-    
-//    document.querySelectorAll('.retour-btn').forEach(button => {
-//        button.addEventListener('click', function () {
-//            const id = this.getAttribute('data-id');
+    }
+
+//    document.querySelectorAll(".retour-btn").forEach(btn => {
+//        btn.addEventListener("click", function () {
+//            const id = this.getAttribute("data-id");
+//            const button = this;
 //
-//            fetch('<%= request.getContextPath() %>/RetourEmpruntServlet', {
-//                method: 'POST',
-//                headers: {
-//                    'Content-Type': 'application/x-www-form-urlencoded'
-//                },
-//                body: 'id=' + id
+//            fetch(`<%= request.getContextPath() %>/RetourEmpruntServlet?id=${id}` , {
+//                method: "GET"
 //            })
 //            .then(response => {
-//                if (!response.ok) throw new Error("Erreur lors du retour du livre.");
+//                console.log(id);
+//                if (!response.ok) throw new Error("Erreur lors du retour");
 //                return response.text();
 //            })
-//            .then(data => {
+//            .then(() => {
+//                // Changer le bouton en "✔ Remis"
+//                button.outerHTML = '<span class="btn btn-sm btn-danger">✔ Remis</span>';
+//
+//                // Afficher l'alerte
 //                Swal.fire({
-//                    title: "Drag me!",
-//                    icon: "Livre retourné avec success !!!",
-//                    draggable: true
-//                  });
-//                //  refresh la page ou désactiver le bouton
-//                location.reload();
+//                    icon: 'success',
+//                    title: 'Succès !',
+//                    text: 'Le livre a été retourné avec succès.',
+//                    timer: 2000,
+//                    showConfirmButton: false
+//                });
 //            })
 //            .catch(error => {
-//                console.error(error);
-//                alert("Erreur : " + error.message);
+//                Swal.fire({
+//                    icon: 'error',
+//                    title: 'Erreur',
+//                    text: error.message
+//                });
 //            });
 //        });
 //    });
-//    
+    
     
     function supprimerEmprunt(id) {
   const swalWithBootstrapButtons = Swal.mixin({
@@ -283,7 +305,7 @@ document.getElementById("searchInput").addEventListener("keyup", function () {
   }).then((result) => {
     if (result.isConfirmed) {
       fetch( '<%= request.getContextPath() %>/DeleteEmprunt?id=' + id, {
-        method: 'POST' // ✅ Utiliser GET car ton servlet écoute doGet
+        method: 'POST' 
       })
       .then(response => {
         if (response.ok) {

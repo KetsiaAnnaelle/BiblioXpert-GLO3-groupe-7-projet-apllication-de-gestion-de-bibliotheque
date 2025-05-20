@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : mar. 20 mai 2025 à 00:42
+-- Généré le : mar. 20 mai 2025 à 12:59
 -- Version du serveur : 10.4.28-MariaDB
 -- Version de PHP : 8.2.4
 
@@ -44,8 +44,10 @@ CREATE TABLE `emprunts` (
 INSERT INTO `emprunts` (`id`, `id_membre`, `id_livre`, `date_emprunt`, `date_retour`, `date_retour_prevue`, `amende`) VALUES
 (1, 1, 2, '2025-05-19', NULL, '2025-05-31', 0),
 (3, 2, 4, '2025-05-19', NULL, '2025-06-10', 0),
-(5, 2, 10, '2025-05-19', NULL, '2025-06-30', 0),
-(7, 1, 2, '2025-05-19', NULL, '2025-06-23', 0);
+(5, 2, 10, '2025-05-19', '2025-05-20', '2025-06-30', 0),
+(9, 6, 9, '2025-05-20', NULL, '2025-05-25', 0),
+(12, 7, 29, '2025-05-18', '2025-05-20', '2025-05-19', 100),
+(13, 1, 2, '2025-05-20', '2025-05-20', '2025-04-23', 2700);
 
 -- --------------------------------------------------------
 
@@ -72,7 +74,8 @@ INSERT INTO `livre` (`id`, `titre`, `auteur`, `isbn`, `annee`, `disponible`) VAL
 (9, 'Amitie', 'Moliere', '434433MKDFMF', 2004, 1),
 (10, 'Amour', 'Toto', '5353chfh', 2001, 1),
 (22, 'df', 'rdthf', 'vbcfbcfgert434', 2007, 1),
-(23, 'df', 'rdthf', 'vbcfbcfgert434', 2007, 1);
+(23, 'df', 'rdthf', 'vbcfbcfgert434', 2007, 1),
+(29, 'La paix', 'Morgan', '745jjfdjdfkj', 1999, 1);
 
 -- --------------------------------------------------------
 
@@ -97,7 +100,9 @@ INSERT INTO `membre` (`id`, `nom`, `prenom`, `telephone`, `amendes`) VALUES
 (2, 'lfdll', 'lklele', '0954905404', 0),
 (3, 'lfdll', 'lklele', '0954905404', 0),
 (4, 'lfdll', 'lklele', '0954905404', 0),
-(5, 'ELLA', 'Ketsia', '655668899', 0);
+(5, 'ELLA', 'Ketsia', '655668899', 0),
+(6, 'Voumia', 'Dilane', '677889900', 0),
+(7, 'Djion', 'Laeticia', '644557899', 0);
 
 -- --------------------------------------------------------
 
@@ -156,19 +161,19 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT pour la table `emprunts`
 --
 ALTER TABLE `emprunts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT pour la table `livre`
 --
 ALTER TABLE `livre`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT pour la table `membre`
 --
 ALTER TABLE `membre`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT pour la table `user`
